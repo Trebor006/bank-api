@@ -2,6 +2,7 @@ package com.test.bankapi.exception.advice.controller;
 
 import com.test.bankapi.component.response.ApiResponse;
 import com.test.bankapi.component.response.ErrorApiResponseServiceInterface;
+import com.test.bankapi.exception.CustomerCurrentPasswordException;
 import com.test.bankapi.exception.CustomerNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,17 @@ public class CustomerControllerAdvice {
                 .getObjectApiResponse(HttpStatus.NOT_FOUND, exception.getMessage());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(response);
+    }
+
+    @ExceptionHandler(CustomerCurrentPasswordException.class)
+    public ResponseEntity<ApiResponse> handleCustomerCurrentPasswordException(
+            CustomerCurrentPasswordException exception
+    ) {
+        ApiResponse response = errorApiResponseService
+                .getObjectApiResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(response);
     }
 }

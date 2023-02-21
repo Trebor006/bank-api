@@ -1,8 +1,10 @@
 package com.test.bankapi.service;
 
+import com.test.bankapi.component.messages.MessageServiceInterface;
 import com.test.bankapi.dto.entry.CustomerDto;
 import com.test.bankapi.entity.Customer;
 import com.test.bankapi.entity.Person;
+import com.test.bankapi.exception.CustomerCurrentPasswordException;
 import com.test.bankapi.exception.CustomerNotFoundException;
 import com.test.bankapi.repository.CustomerRepository;
 import com.test.bankapi.repository.PersonRepository;
@@ -22,6 +24,7 @@ import java.util.List;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class CustomerService implements CustomerServiceInterface {
 
+    private final MessageServiceInterface messageService;
     private final CustomerRepository customerRepository;
 
     //todo Mover la logica a personService
@@ -71,27 +74,26 @@ public class CustomerService implements CustomerServiceInterface {
     @Override
     @Transactional
     public Customer updateCustomer(Long id, CustomerDto customerDto) {
+        var currentCustomer = customerRepository.findById(id)
+                .orElseThrow(() -> new CustomerNotFoundException(id));
+
         var passwordEncrypted = PasswordEncryption.encrypt(customerDto.getPassword());
 
-        var person = Person.builder()
-                .name(customerDto.getName())
-                .gender(customerDto.getGender())
-                .age(customerDto.getAge())
-                .identification(customerDto.getIdentification())
-                .address(customerDto.getAddress())
-                .phone(customerDto.getPhone())
-                .build();
+        currentCustomer.getPerson().setName(customerDto.getName());
+        currentCustomer.getPerson().setGender(customerDto.getGender());
+        currentCustomer.getPerson().setAge(customerDto.getAge());
+        currentCustomer.getPerson().setIdentification(customerDto.getIdentification());
+        currentCustomer.getPerson().setAddress(customerDto.getAddress());
+        currentCustomer.getPerson().setPhone(customerDto.getPhone());
 
-        personRepository.saveAndFlush(person);
+        personRepository.saveAndFlush(currentCustomer.getPerson());
 
-        var customer = Customer.builder()
-                .person(person)
-                .password(passwordEncrypted)
-                .status(customerDto.getStatus())
-                .build();
-        customerRepository.saveAndFlush(customer);
 
-        return customer;
+        currentCustomer.setPassword(passwordEncrypted);
+        currentCustomer.setStatus(customerDto.getStatus());
+        customerRepository.saveAndFlush(currentCustomer);
+
+        return currentCustomer;
     }
 
     @Override
@@ -104,5 +106,19 @@ public class CustomerService implements CustomerServiceInterface {
 
         customerRepository.deleteById(id);
         personRepository.deleteById(customer.getPerson().getId());
+    }
+
+    @Override
+    public void updatePassword(Long id, String currentPassword, String newPassword) {
+        Customer customer = getCustomerById(id);
+        var currentPasswordEncrypted = PasswordEncryption.encrypt(currentPassword);
+
+        if (!currentPasswordEncrypted.equals(customer.getPassword())) {
+            throw new CustomerCurrentPasswordException(messageService.getMessage("current.password.exception"));
+        }
+
+        var newPasswordEncrypted = PasswordEncryption.encrypt(newPassword);
+        customer.setPassword(newPasswordEncrypted);
+        customerRepository.saveAndFlush(customer);
     }
 }

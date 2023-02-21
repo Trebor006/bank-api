@@ -5,6 +5,7 @@ import com.test.bankapi.component.response.ApiResponse;
 import com.test.bankapi.component.response.SuccessApiResponseServiceInterface;
 import com.test.bankapi.constants.RestRequestMappingConstants;
 import com.test.bankapi.dto.entry.CustomerDto;
+import com.test.bankapi.dto.entry.UpdatePasswordDto;
 import com.test.bankapi.entity.Customer;
 import com.test.bankapi.service.CustomerServiceInterface;
 import lombok.RequiredArgsConstructor;
@@ -75,15 +76,14 @@ public class CustomerController {
         );
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse> partialUpdateCustomer(@PathVariable Long id,
-                                                             @RequestBody CustomerDto requestCustomerDto) {
-        var customer = customerServiceFactory.getObject()
-                .updateCustomer(id, requestCustomerDto);
-        var customerDto = customerDtoMapperService.mapFromEntity(customer);
+    @PatchMapping("/{id}/updatePassword")
+    public ResponseEntity<ApiResponse> updatePassword(@PathVariable Long id,
+                                                      @RequestBody UpdatePasswordDto updatePasswordDto) {
+        customerServiceFactory.getObject()
+                .updatePassword(id, updatePasswordDto.getCurrentPassword(), updatePasswordDto.getNewPassword());
 
         return ResponseEntity.ok(
-                successApiResponseService.createSuccessResponse(customerDto)
+                successApiResponseService.createSuccessResponse(Boolean.TRUE)
         );
     }
 
