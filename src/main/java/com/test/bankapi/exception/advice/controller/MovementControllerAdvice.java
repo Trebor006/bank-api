@@ -1,8 +1,8 @@
-package com.test.bankapi.controller;
+package com.test.bankapi.exception.advice.controller;
 
 import com.test.bankapi.component.response.ApiResponse;
 import com.test.bankapi.component.response.ErrorApiResponseServiceInterface;
-import com.test.bankapi.exception.CustomerNotFoundException;
+import com.test.bankapi.exception.MovementNoAllowedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -13,15 +13,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @Slf4j
 @ControllerAdvice
 @RequiredArgsConstructor
-public class CustomerControllerAdvice {
+public class MovementControllerAdvice {
+
     private final ErrorApiResponseServiceInterface errorApiResponseService;
 
-    @ExceptionHandler(CustomerNotFoundException.class)
-    public ResponseEntity<ApiResponse> handleCustomerNotFoundException(CustomerNotFoundException exception) {
-        ApiResponse response = errorApiResponseService
-                .getObjectApiResponse(HttpStatus.NOT_FOUND, exception.getMessage());
+    @ExceptionHandler(MovementNoAllowedException.class)
+    public ResponseEntity<ApiResponse> handleMovementNoAllowedException(MovementNoAllowedException exception) {
+        var responseError = errorApiResponseService.
+                getObjectApiResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(response);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(responseError);
     }
 }

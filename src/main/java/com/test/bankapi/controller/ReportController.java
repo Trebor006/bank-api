@@ -1,7 +1,10 @@
 package com.test.bankapi.controller;
 
+import com.test.bankapi.component.response.ApiResponse;
+import com.test.bankapi.component.response.SuccessApiResponseServiceInterface;
 import com.test.bankapi.constants.RestRequestMappingConstants;
-import com.test.bankapi.service.ReportService;
+import com.test.bankapi.service.ReportServiceInterface;
+import com.test.bankapi.util.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -19,16 +21,23 @@ import java.util.List;
 @RequestMapping(RestRequestMappingConstants.REPORTS)
 public class ReportController {
 
-    private final ReportService reportService;
+    private final ReportServiceInterface reportService;
+    private final SuccessApiResponseServiceInterface successApiResponseService;
 
     @GetMapping
-    public ResponseEntity<List<String>> getReports(
-            @RequestParam("date") LocalDate date
+    public ResponseEntity<ApiResponse> getReports(
+            @RequestParam("customerName") String customerName,
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate
     ) {
-        var reports = reportService.getReports();
+        var reports = reportService.getMovementsByCustomerAndDateRange(
+                customerName,
+                DateUtils.toLocalDate(startDate),
+                DateUtils.toLocalDate(endDate)
+        );
         log.info("getReports");
 
-        return ResponseEntity.ok(reports);
+        return ResponseEntity.ok(successApiResponseService.createSuccessResponse(reports));
     }
 
 }

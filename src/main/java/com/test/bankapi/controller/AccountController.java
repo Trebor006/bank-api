@@ -9,6 +9,7 @@ import com.test.bankapi.dto.entry.AccountDto;
 import com.test.bankapi.service.AccountServiceInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,13 +20,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(RestRequestMappingConstants.ACCOUNTS)
 public class AccountController {
 
-    private final AccountServiceInterface accountService;
+    private final ObjectFactory<AccountServiceInterface> accountServiceFactory;
     private final AccountDtoMapperServiceInterface accountDtoMapperService;
     private final SuccessApiResponseServiceInterface successApiResponseService;
 
     @GetMapping
     public ResponseEntity<ApiResponse> getAccounts() {
-        var accounts = accountService.getAccounts();
+        var accounts = accountServiceFactory.getObject().getAccounts();
         var accountDtos = accountDtoMapperService.mapFromEntity(accounts);
         log.debug("getAccounts Response : " + new Gson().toJson(accountDtos));
 
@@ -34,7 +35,7 @@ public class AccountController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getAccountById(@PathVariable Long id) {
-        var account = accountService.getAccountById(id);
+        var account = accountServiceFactory.getObject().getAccountById(id);
         var accountDto = accountDtoMapperService.mapFromEntity(account);
 
         log.debug("getAccountById Response : " + new Gson().toJson(accountDto));
@@ -44,7 +45,7 @@ public class AccountController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ApiResponse> createAccount(@RequestBody AccountDto requestAccountDto) {
-        var account = accountService.createAccount(requestAccountDto);
+        var account = accountServiceFactory.getObject().createAccount(requestAccountDto);
         var accountDto = accountDtoMapperService.mapFromEntity(account);
 
         log.debug("createAccount Response : " + new Gson().toJson(accountDto));
@@ -55,7 +56,7 @@ public class AccountController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse> updateAccount(@PathVariable Long id,
                                                      @RequestBody AccountDto requestAccountDto) {
-        var account = accountService.updateAccount(id, requestAccountDto);
+        var account = accountServiceFactory.getObject().updateAccount(id, requestAccountDto);
         var accountDto = accountDtoMapperService.mapFromEntity(account);
 
         log.debug("createAccount Response : " + new Gson().toJson(accountDto));
@@ -66,7 +67,7 @@ public class AccountController {
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse> partialUpdateAccount(@PathVariable Long id,
                                                             @RequestBody AccountDto requestAccountDto) {
-        var account = accountService.updateAccount(id, requestAccountDto);
+        var account = accountServiceFactory.getObject().updateAccount(id, requestAccountDto);
         var accountDto = accountDtoMapperService.mapFromEntity(account);
         log.debug("partialUpdateAccount Response : " + new Gson().toJson(accountDto));
 
@@ -77,7 +78,7 @@ public class AccountController {
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteAccount(@PathVariable Long id) {
         log.debug("deleteAccount");
-        accountService.deleteAccount(id);
+        accountServiceFactory.getObject().deleteAccount(id);
 
         return ResponseEntity.ok(successApiResponseService.createSuccessResponse(Boolean.TRUE));
     }

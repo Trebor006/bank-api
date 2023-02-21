@@ -9,6 +9,7 @@ import com.test.bankapi.dto.entry.MovementDto;
 import com.test.bankapi.service.MovementServiceInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,14 +20,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(RestRequestMappingConstants.MOVEMENTS)
 public class MovementController {
 
-    private final MovementServiceInterface movementService;
+    private final ObjectFactory<MovementServiceInterface> movementServiceFactory;
     private final MovementDtoMapperServiceInterface movementDtoMapperService;
     private final SuccessApiResponseServiceInterface successApiResponseService;
     private final MovementLogicDtoMapperServiceInterface movementLogicDtoMapperService;
 
     @GetMapping
     public ResponseEntity<ApiResponse> getMovements() {
-        var movements = movementService.getMovements();
+        var movements = movementServiceFactory.getObject()
+                .getMovements();
         var movementDtos = movementDtoMapperService.mapFromEntity(movements);
         log.info("getMovements");
 
@@ -35,7 +37,8 @@ public class MovementController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getMovementById(@PathVariable Long id) {
-        var movement = movementService.getMovementById(id);
+        var movement = movementServiceFactory.getObject()
+                .getMovementById(id);
         var movementDto = movementDtoMapperService.mapFromEntity(movement);
         log.info("getMovementById");
 
@@ -46,7 +49,8 @@ public class MovementController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ApiResponse> createMovement(@RequestBody MovementDto requestMovementDto) {
         var movementLogicDto = movementLogicDtoMapperService.mapToBusinessDto(requestMovementDto);
-        var movement = movementService.createMovement(movementLogicDto);
+        var movement = movementServiceFactory.getObject()
+                .createMovement(movementLogicDto);
         var movementDto = movementDtoMapperService.mapFromEntity(movement);
         log.info("createMovement");
 
@@ -57,7 +61,8 @@ public class MovementController {
     public ResponseEntity<ApiResponse> updateMovement(@PathVariable Long id,
                                                       @RequestBody MovementDto requestMovementDto) {
         var movementLogicDto = movementLogicDtoMapperService.mapToBusinessDto(requestMovementDto);
-        var movement = movementService.updateMovement(id, movementLogicDto);
+        var movement = movementServiceFactory.getObject()
+                .updateMovement(id, movementLogicDto);
         var movementDto = movementDtoMapperService.mapFromEntity(movement);
         log.info("updateMovement");
 
@@ -68,7 +73,8 @@ public class MovementController {
     public ResponseEntity<ApiResponse> updateMovementValue(@PathVariable Long id,
                                                            @RequestBody MovementDto requestMovementDto) {
         var movementLogicDto = movementLogicDtoMapperService.mapToBusinessDto(requestMovementDto);
-        var movement = movementService.updateMovement(id, movementLogicDto);
+        var movement = movementServiceFactory.getObject()
+                .updateMovement(id, movementLogicDto);
         var movementDto = movementDtoMapperService.mapFromEntity(movement);
         log.info("updateMovement");
 
@@ -77,7 +83,8 @@ public class MovementController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteMovement(@PathVariable Long id) {
-        movementService.deleteMovement(id);
+        movementServiceFactory.getObject()
+                .deleteMovement(id);
 
         return ResponseEntity.ok(successApiResponseService.createSuccessResponse(Boolean.TRUE));
     }

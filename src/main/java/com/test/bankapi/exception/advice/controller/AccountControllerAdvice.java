@@ -1,4 +1,4 @@
-package com.test.bankapi.controller;
+package com.test.bankapi.exception.advice.controller;
 
 import com.test.bankapi.component.response.ApiResponse;
 import com.test.bankapi.component.response.ErrorApiResponseServiceInterface;

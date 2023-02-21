@@ -9,6 +9,8 @@ import com.test.bankapi.repository.PersonRepository;
 import com.test.bankapi.util.PasswordEncryption;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -17,6 +19,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class CustomerService implements CustomerServiceInterface {
 
     private final CustomerRepository customerRepository;

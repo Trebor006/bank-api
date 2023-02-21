@@ -9,6 +9,7 @@ import com.test.bankapi.entity.Customer;
 import com.test.bankapi.service.CustomerServiceInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,13 +22,15 @@ import java.util.List;
 @RequestMapping(RestRequestMappingConstants.CUSTOMERS)
 public class CustomerController {
 
-    private final CustomerServiceInterface customerService;
+    private final ObjectFactory<CustomerServiceInterface> customerServiceFactory;
     private final CustomerDtoMapperServiceInterface customerDtoMapperService;
     private final SuccessApiResponseServiceInterface successApiResponseService;
 
     @GetMapping
     public ResponseEntity<ApiResponse> getCustomers() {
-        List<Customer> customers = customerService.getCustomers();
+        List<Customer> customers = customerServiceFactory.getObject()
+                .getCustomers();
+
         List<CustomerDto> customerDtos = customerDtoMapperService.mapFromEntity(customers);
 
         log.info("getCustomers");
@@ -39,7 +42,8 @@ public class CustomerController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getCustomerById(@PathVariable Long id) {
-        var customer = customerService.getCustomerById(id);
+        var customer = customerServiceFactory.getObject()
+                .getCustomerById(id);
         var customerDto = customerDtoMapperService.mapFromEntity(customer);
 
         return ResponseEntity.ok(
@@ -50,7 +54,8 @@ public class CustomerController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ApiResponse> createCustomer(@RequestBody CustomerDto requestCustomerDto) {
-        var customer = customerService.createCustomer(requestCustomerDto);
+        var customer = customerServiceFactory.getObject()
+                .createCustomer(requestCustomerDto);
         var customerDto = customerDtoMapperService.mapFromEntity(customer);
 
         return ResponseEntity.ok(
@@ -59,8 +64,10 @@ public class CustomerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse> updateCustomer(@PathVariable Long id, @RequestBody CustomerDto requestCustomerDto) {
-        var customer = customerService.updateCustomer(id, requestCustomerDto);
+    public ResponseEntity<ApiResponse> updateCustomer(@PathVariable Long id,
+                                                      @RequestBody CustomerDto requestCustomerDto) {
+        var customer = customerServiceFactory.getObject()
+                .updateCustomer(id, requestCustomerDto);
         var customerDto = customerDtoMapperService.mapFromEntity(customer);
 
         return ResponseEntity.ok(
@@ -69,8 +76,10 @@ public class CustomerController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse> partialUpdateCustomer(@PathVariable Long id, @RequestBody CustomerDto requestCustomerDto) {
-        var customer = customerService.updateCustomer(id, requestCustomerDto);
+    public ResponseEntity<ApiResponse> partialUpdateCustomer(@PathVariable Long id,
+                                                             @RequestBody CustomerDto requestCustomerDto) {
+        var customer = customerServiceFactory.getObject()
+                .updateCustomer(id, requestCustomerDto);
         var customerDto = customerDtoMapperService.mapFromEntity(customer);
 
         return ResponseEntity.ok(
@@ -80,10 +89,14 @@ public class CustomerController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteCustomer(@PathVariable Long id) {
-        customerService.deleteCustomer(id);
+        customerServiceFactory.getObject()
+                .deleteCustomer(id);
 
         return ResponseEntity.ok(
                 successApiResponseService.createSuccessResponse(Boolean.TRUE)
         );
     }
 }
+
+
+

@@ -6,8 +6,11 @@ import com.test.bankapi.entity.Customer;
 import com.test.bankapi.exception.AccountNotFoundException;
 import com.test.bankapi.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -16,12 +19,14 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class AccountService implements AccountServiceInterface {
 
     private final AccountRepository accountRepository;
     private final CustomerServiceInterface customerService;
 
-    @Value("${max.daily.debit.amount_default}")
+    @Setter
+    @Value("${max.daily.debit.amount.default}")
     private String maxDailyDebitAmountDefault;
 
     @Override
@@ -54,7 +59,7 @@ public class AccountService implements AccountServiceInterface {
                 .status(accountDto.getStatus())
                 .build();
 
-        accountRepository.saveAndFlush(account);
+        account = accountRepository.saveAndFlush(account);
 
         return account;
     }
