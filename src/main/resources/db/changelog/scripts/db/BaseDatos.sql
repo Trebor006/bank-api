@@ -1,5 +1,5 @@
-create database bank;
-set search_path = "public";
+-- create database bank;
+-- set search_path = "public";
 
 
 DROP TABLE IF EXISTS Movement;
