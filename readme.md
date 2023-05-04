@@ -1,19 +1,31 @@
-Puedes ver el historial del desarrollo de esta aplicacion en el siguiente repositorio:
+# BankAPI!!
 
-http://github.com/trebor006/bankapi
+This solution was resolved using
+"Postgres", "Liquibase", "Spring", "RestServices", "Hibernate"
 
+### Reference Repository
 
-
-
-docker run -d --name bank-postgresdb -e POSTGRES_PASSWORD=password -p "5432:5432" -e PGDATA=/var/lib/postgresql/data/pgdata -v /custom/mount:/var/lib/postgresql/data postgres
-
-
-
-- Compilar Para Test
-mvn clean install -Ptest
+https://github.com/Trebor006/bank-api
 
 
-- Compilar Para Prod
-  mvn clean install -Pprod
+### Running the project
+
+- Requisites
+  - docker
+  - postman
+  - Ports required for the project
+    - 8080 for BankAPI Microservice (bank-api) 
+    - 5432 for postgresDB
+
+- run into the terminal
+  docker-compose up
+
+- import the file "Devsu.postman_collection.json" to your postman
+  - A folder called "Devsu" should appear with the folowing folders: "Customer", "Account", "Movements" and "Reports"  
+  - now you should be able to execute the rest services
 
 
+Actuator is enabled, so you can review it in this url
+- http://localhost:8080/api/actuator
+
+Have fun!
